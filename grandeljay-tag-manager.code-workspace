@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"phpsab.standard": "WordPress",
+		"php-docblocker.author": {
+			"name": "Jay Trees",
+			"email": "github.jay@grandel.anonaddy.me"
+		}
+	}
+}
