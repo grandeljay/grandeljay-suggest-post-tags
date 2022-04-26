@@ -18,7 +18,7 @@
  */
 
 /**
- * Admin initialsation
+ * Admin initialisation
  */
 define('GRANDELJAY_TAG_MANAGER_OPTIONS_PAGE', 'grandeljay_tag_manager_options');
 define('GRANDELJAY_TAG_MANAGER_OPTIONS_API', 'grandeljay-tag-manager-options-api');
