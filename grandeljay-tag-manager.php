@@ -130,7 +130,7 @@ function grandeljay_tag_manager_after_tag_search( $results, $tax, $s ) {
 	$api_key = get_option( GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME );
 
 	foreach ( $results as $result ) {
-		$definitions = grab_json_definition($result, 'thesaurus', $api_key );
+		$definitions = grandeljay_tag_manager_get_definition($result, 'thesaurus', $api_key );
 
 		$terms_searched = array(
 			sanitize_title( $result ),
@@ -167,9 +167,18 @@ function grandeljay_tag_manager_after_tag_search( $results, $tax, $s ) {
 
 add_filter( 'wp_after_tag_search', 'grandeljay_tag_manager_after_tag_search', 10, 3 );
 
-
-// This function grabs the definition of a word in JSON format.
-function grab_json_definition ($word, $ref, $key) {
+/**
+ * Get word definition from Merriam-Webster API
+ *
+ * @param string $word
+ * @param string $ref
+ * @param string $key
+ *
+ * @see https://dictionaryapi.com/products/api-collegiate-thesaurus
+ *
+ * @return string
+ */
+function grandeljay_tag_manager_get_definition( string $word, string $ref, string $key ): string {
 	$uri  = 'https://dictionaryapi.com/api/v3/references/' . urlencode($ref) . '/json/' . urlencode($word) . '?key=' . urlencode($key);
 	$json = json_decode(file_get_contents($uri));
 
