@@ -8,142 +8,170 @@
  * @wordpress-plugin
  * Plugin Name:       Tag Manager
  * Plugin URI:        https://example.com/plugin-name
- * Description:       The Tag Manager helps you reduce the amount of tags you are using by suggesting better tags.
+ * Description:       The Tag Manager helps you reduce the amount of tags you are using by suggesting similar, existing tags.
  * Version:           0.1.0
- * Requires at least: 5.9
- * Requires PHP:      7.4
+ * Requires at least: 6.1
+ * Requires PHP:      8.0
  * Author:            Jay Trees
  * Author URI:        https://github.com/grandeljay/
  * Text Domain:       grandeljay-tag-manager
  */
 
 /**
- * Create taxonomy "Suggested Tags"
+ * Admin initialsation
  */
-function grandeljay_tag_manager_taxonomoy_create() {
-	$labels = array(
-		'name'                       => _x( 'Suggested Tags', 'taxonomy general name', 'grandeljay-tag-manager' ),
-		'singular_name'              => _x( 'Suggested Tag', 'taxonomy singular name', 'grandeljay-tag-manager' ),
-		'search_items'               => __( 'Search Suggested Tags', 'grandeljay-tag-manager' ),
-		'popular_items'              => __( 'Popular Suggested Tags', 'grandeljay-tag-manager' ),
-		'all_items'                  => __( 'All Suggested Tags', 'grandeljay-tag-manager' ),
-		'parent_item'                => null,
-		'parent_item_colon'          => null,
-		'edit_item'                  => __( 'Edit Suggested Tag', 'grandeljay-tag-manager' ),
-		'update_item'                => __( 'Update Suggested Tag', 'grandeljay-tag-manager' ),
-		'add_new_item'               => __( 'Add New Suggested Tag', 'grandeljay-tag-manager' ),
-		'new_item_name'              => __( 'New Suggested Tag Name', 'grandeljay-tag-manager' ),
-		'separate_items_with_commas' => __( 'Separate suggested tags with commas', 'grandeljay-tag-manager' ),
-		'add_or_remove_items'        => __( 'Add or remove suggested tags', 'grandeljay-tag-manager' ),
-		'choose_from_most_used'      => __( 'Choose from the most used suggested tags', 'grandeljay-tag-manager' ),
-		'not_found'                  => __( 'No suggested tags found.', 'grandeljay-tag-manager' ),
-		'menu_name'                  => __( 'Suggested Tags', 'grandeljay-tag-manager' ),
+define('GRANDELJAY_TAG_MANAGER_OPTIONS_PAGE', 'grandeljay_tag_manager_options');
+define('GRANDELJAY_TAG_MANAGER_OPTIONS_API', 'grandeljay-tag-manager-options-api');
+define('GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME', 'grandeljay-tag-manager-api-key');
+define('GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_VALUE', '01234567-89ab-cdef-0123-456789abcdef');
+
+function grandeljay_tag_manager_admin_init() {
+	/**
+	 * Settings
+	 */
+	add_settings_section(
+		id:       GRANDELJAY_TAG_MANAGER_OPTIONS_API,
+		title:    __( 'API' ),
+		callback: '',
+		page:     GRANDELJAY_TAG_MANAGER_OPTIONS_PAGE
 	);
 
-	$args = array(
-		'hierarchical'          => false,
-		'labels'                => $labels,
-		'show_ui'               => true,
-		'show_admin_column'     => true,
-		'update_count_callback' => '_update_post_term_count',
-		'query_var'             => false,
+	add_settings_field(
+		id:       GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME,
+		title:     __( 'Key' ),
+		callback: 'grandeljay_tag_manager_options_api_key',
+		page:     GRANDELJAY_TAG_MANAGER_OPTIONS_PAGE,
+		section:  GRANDELJAY_TAG_MANAGER_OPTIONS_API
 	);
 
-	register_taxonomy( 'post_tag_suggested', 'post', $args );
+	register_setting(
+		option_group: GRANDELJAY_TAG_MANAGER_OPTIONS_PAGE,
+		option_name:  GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME,
+		args:         array(
+			'type'         => 'string',
+			'description'  => __('desc'),
+			'show_in_rest' => false,
+			'default'      => GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_VALUE
+		)
+	);
+
+	/**
+	 * Options
+	 */
+
 }
 
-add_action( 'init', 'grandeljay_tag_manager_taxonomoy_create' );
+add_action( 'admin_init', 'grandeljay_tag_manager_admin_init' );
 
 /**
- * Register taxonomy "Suggested Tags"
+ * The HTML for setting "grandeljay-tag-manager-options-api-key"
+ */
+function grandeljay_tag_manager_options_api_key() {
+	$value = get_option( GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME );
+	?>
+
+	<input type="text" name="<?php echo esc_attr( GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME ) ?>" value="<?php echo esc_attr( $value ) ?>" />
+	<?php
+}
+
+/**
+ * Add submenu page
+ */
+define('GRANDELJAY_TAG_MANAGER_OPTIONS_CAPABILITY_REQUIRED', 'manage_options');
+
+function grandeljay_tag_manager_add_options_page() {
+	add_options_page(
+		page_title:  __('Tag Manager'),
+		menu_title:  __('Tag Manager'),
+		capability:  GRANDELJAY_TAG_MANAGER_OPTIONS_CAPABILITY_REQUIRED,
+		menu_slug:   'grandeljay_tag_manager',
+		function:    'grandeljay_tag_manager_submenu_page'
+	);
+}
+
+add_action( 'admin_menu', 'grandeljay_tag_manager_add_options_page' );
+
+/**
+ * HTML for the submenu page
  *
- * @return void
+ * @link https://dictionaryapi.com/products/api-collegiate-thesaurus
  */
-function grandeljay_tag_manager_taxonomy_register() {
-	register_taxonomy_for_object_type( 'post_tag_suggested', 'post' );
+function grandeljay_tag_manager_submenu_page() {
+	if ( ! current_user_can( GRANDELJAY_TAG_MANAGER_OPTIONS_CAPABILITY_REQUIRED ) ) {
+		return;
+	}
+	?>
+
+	<div class="wrap">
+		<h1><?php echo esc_html( get_admin_page_title() ) ?></h1>
+
+		<h2><?php echo esc_html( 'Merriam-Webster API' ) ?></h2>
+		<p>
+			<?php
+				printf(
+					__( 'In order to use the Tag Manager a Merriam-Webster API key is required. You can request it %s.', 'grandeljay-tag-manager' ),
+					'<a href="https://dictionaryapi.com/register/index" target="_blank">' . __( 'here' ) . '</a>'
+				);
+			?>
+		</p>
+
+		<form action="options.php" method="post">
+			<?php
+			settings_fields( GRANDELJAY_TAG_MANAGER_OPTIONS_PAGE );
+			do_settings_sections( GRANDELJAY_TAG_MANAGER_OPTIONS_PAGE );
+			submit_button();
+			?>
+		</form>
+	</div>
+	<?php
 }
 
-add_action( 'init', 'grandeljay_tag_manager_taxonomy_register' );
+function grandeljay_tag_manager_after_tag_search( $results, $tax, $s ) {
+	$api_key = get_option( GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME );
 
+	foreach ( $results as $result ) {
+		$definitions = grab_json_definition($result, 'thesaurus', $api_key );
 
-/**
- * Initialise
- */
-function grandeljay_tag_manager_current_screen() {
-	$screen = get_current_screen();
-
-	if ( 'edit-post' === $screen->id ) {
-		$wp_posts = get_posts(
-			array(
-				'numberposts' => -1,
-				'post_type'   => 'post',
-			)
-		);
-		$wp_tags  = get_tags(
-			array(
-				'taxonomy' => 'post_tag',
-			)
+		$terms_searched = array(
+			sanitize_title( $result ),
 		);
 
-		$suggested_tags = array(
-			'gun' => 'weapon',
-		);
+		foreach ( $definitions as $definition ) {
+			$synonyms = $definition->meta->syns;
 
-		foreach ( $wp_posts as $wp_post ) {
-			$wp_post_tags = wp_get_post_tags( $wp_post->ID );
+			foreach ( $synonyms as $synonyms_group ) {
+				foreach ( $synonyms_group as $synonym ) {
+					$term = sanitize_title( $synonym );
 
-			foreach ( $wp_post_tags as $wp_post_tag ) {
-				$key = $wp_post_tag->slug;
-
-				/**
-				 * Determine if a suggested tag exists for the WP_Post post_tag
-				 */
-				if ( isset( $suggested_tags[ $key ] ) ) {
-					/**
-					 * Determine if the suggested post_tag exists as a post_tag
-					 */
-					foreach ( $wp_tags as $wp_tag ) {
-						if ( $wp_tag->slug === $suggested_tags[ $key ] ) {
-							/**
-							 * Set the post_tag as post_tag_suggested
-							 */
-							global $wpdb;
-
-							/**
-							 * Insert "post_tag_suggested" into wp_term_taxonomy
-							 */
-							$wpdb->insert(
-								$wpdb->term_taxonomy,
-								array(
-									'term_id'  => $wp_tag->term_id,
-									'taxonomy' => 'post_tag_suggested',
-								)
-							);
-
-							/**
-							 * Get the newly created term
-							 */
-							$post_tag_suggested = get_term( $wp_tag->term_id, 'post_tag_suggested' );
-
-							/**
-							 * Insert the term relationship into wp_term_relationships
-							 */
-							$wpdb->insert(
-								$wpdb->term_relationships,
-								array(
-									'object_id'        => $wp_post->ID,
-									'term_taxonomy_id' => $post_tag_suggested->term_taxonomy_id,
-								)
-							);
-
-							break;
-						}
+					if ( in_array( $term, $terms_searched ) ) {
+						continue;
 					}
+
+					$similar_terms    = get_terms(
+						array(
+							'taxonomy'   => 'post_tag',
+							'fields'     => 'names',
+							'name__like' => $term,
+						)
+					);
+					$terms_searched[] = $term;
+
+					$results = array_merge($results, $similar_terms);
 				}
 			}
 		}
 	}
 
+	return $results;
 }
 
-add_action( 'current_screen', 'grandeljay_tag_manager_current_screen' );
+add_filter( 'wp_after_tag_search', 'grandeljay_tag_manager_after_tag_search', 10, 3 );
+
+
+// This function grabs the definition of a word in JSON format.
+function grab_json_definition ($word, $ref, $key) {
+	$uri  = 'https://dictionaryapi.com/api/v3/references/' . urlencode($ref) . '/json/' . urlencode($word) . '?key=' . urlencode($key);
+	$json = json_decode(file_get_contents($uri));
+
+	return $json;
+};
