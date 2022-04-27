@@ -7,7 +7,7 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Suggest Post Tags
- * Description:       The Suggest Post Tags plugins helps you reduce the amount of tags you are using by suggesting similar, existing tags.
+ * Description:       The Suggest Post Tags plugin helps you reduce the amount of tags you are using by suggesting similar, existing tags.
  * Version:           0.1.0
  * Requires at least: 6.1
  * Requires PHP:      8.0
