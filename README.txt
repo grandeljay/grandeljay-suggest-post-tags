@@ -9,7 +9,7 @@ Stable tag: trunk
 License: GNU Affero General Public License v3.0
 License URI: https://github.com/grandeljay/grandeljay-suggest-post-tags/blob/main/LICENSE
 
-The Suggest Post Tags plugins helps you reduce the amount of tags you are using by suggesting similar, existing tags.
+The Suggest Post Tags plugin helps you reduce the amount of tags you are using by suggesting similar, existing tags.
 
 == Description ==
 = How it works =
