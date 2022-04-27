@@ -20,10 +20,10 @@
 /**
  * Admin initialisation
  */
-define('GRANDELJAY_TAG_MANAGER_OPTIONS_PAGE', 'grandeljay_tag_manager_options');
-define('GRANDELJAY_TAG_MANAGER_OPTIONS_API', 'grandeljay-tag-manager-options-api');
-define('GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME', 'grandeljay-tag-manager-api-key');
-define('GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_VALUE', '01234567-89ab-cdef-0123-456789abcdef');
+define( 'GRANDELJAY_TAG_MANAGER_OPTIONS_PAGE', 'grandeljay_tag_manager_options' );
+define( 'GRANDELJAY_TAG_MANAGER_OPTIONS_API', 'grandeljay-tag-manager-options-api' );
+define( 'GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME', 'grandeljay-tag-manager-api-key' );
+define( 'GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_VALUE', '01234567-89ab-cdef-0123-456789abcdef' );
 
 function grandeljay_tag_manager_admin_init() {
 	/**
@@ -49,9 +49,9 @@ function grandeljay_tag_manager_admin_init() {
 		option_name:  GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME,
 		args:         array(
 			'type'         => 'string',
-			'description'  => __('desc'),
+			'description'  => __( 'desc' ),
 			'show_in_rest' => false,
-			'default'      => GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_VALUE
+			'default'      => GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_VALUE,
 		)
 	);
 
@@ -70,19 +70,19 @@ function grandeljay_tag_manager_options_api_key() {
 	$value = get_option( GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME );
 	?>
 
-	<input type="text" name="<?php echo esc_attr( GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME ) ?>" value="<?php echo esc_attr( $value ) ?>" />
+	<input type="text" name="<?php echo esc_attr( GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME ); ?>" value="<?php echo esc_attr( $value ); ?>" />
 	<?php
 }
 
 /**
  * Add submenu page
  */
-define('GRANDELJAY_TAG_MANAGER_OPTIONS_CAPABILITY_REQUIRED', 'manage_options');
+define( 'GRANDELJAY_TAG_MANAGER_OPTIONS_CAPABILITY_REQUIRED', 'manage_options' );
 
 function grandeljay_tag_manager_add_options_page() {
 	add_options_page(
-		page_title:  __('Tag Manager'),
-		menu_title:  __('Tag Manager'),
+		page_title:  __( 'Tag Manager' ),
+		menu_title:  __( 'Tag Manager' ),
 		capability:  GRANDELJAY_TAG_MANAGER_OPTIONS_CAPABILITY_REQUIRED,
 		menu_slug:   'grandeljay_tag_manager',
 		function:    'grandeljay_tag_manager_submenu_page'
@@ -103,9 +103,9 @@ function grandeljay_tag_manager_submenu_page() {
 	?>
 
 	<div class="wrap">
-		<h1><?php echo esc_html( get_admin_page_title() ) ?></h1>
+		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 
-		<h2><?php echo esc_html( 'Merriam-Webster API' ) ?></h2>
+		<h2><?php echo esc_html( 'Merriam-Webster API' ); ?></h2>
 		<p>
 			<?php
 				printf(
@@ -130,7 +130,7 @@ function grandeljay_tag_manager_after_tag_search( $results, $tax, $s ) {
 	$api_key = get_option( GRANDELJAY_TAG_MANAGER_OPTIONS_API_KEY_NAME );
 
 	foreach ( $results as $result ) {
-		$definitions = grandeljay_tag_manager_get_definition($result, 'thesaurus', $api_key );
+		$definitions = grandeljay_tag_manager_get_definition( $result, 'thesaurus', $api_key );
 
 		$terms_searched = array(
 			sanitize_title( $result ),
@@ -156,7 +156,7 @@ function grandeljay_tag_manager_after_tag_search( $results, $tax, $s ) {
 					);
 					$terms_searched[] = $term;
 
-					$results = array_merge($results, $similar_terms);
+					$results = array_merge( $results, $similar_terms );
 				}
 			}
 		}
@@ -179,8 +179,8 @@ add_filter( 'wp_after_tag_search', 'grandeljay_tag_manager_after_tag_search', 10
  * @return string
  */
 function grandeljay_tag_manager_get_definition( string $word, string $ref, string $key ): string {
-	$uri  = 'https://dictionaryapi.com/api/v3/references/' . urlencode($ref) . '/json/' . urlencode($word) . '?key=' . urlencode($key);
-	$json = json_decode(file_get_contents($uri));
+	$uri  = 'https://dictionaryapi.com/api/v3/references/' . urlencode( $ref ) . '/json/' . urlencode( $word ) . '?key=' . urlencode( $key );
+	$json = json_decode( file_get_contents( $uri ) );
 
 	return $json;
 };
