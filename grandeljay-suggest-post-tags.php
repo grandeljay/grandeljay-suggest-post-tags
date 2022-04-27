@@ -151,7 +151,7 @@ function grandeljay_suggest_post_tags_after_tag_search( array $results, WP_Taxon
 		);
 
 		foreach ( $definitions as $definition ) {
-			$synonyms = $definition->meta->syns;
+			$synonyms = $definition->meta->syns ?? array();
 
 			foreach ( $synonyms as $synonyms_group ) {
 				foreach ( $synonyms_group as $synonym ) {
@@ -190,11 +190,11 @@ add_filter( 'wp_after_tag_search', 'grandeljay_suggest_post_tags_after_tag_searc
  *
  * @see https://dictionaryapi.com/products/api-collegiate-thesaurus
  *
- * @return string
+ * @return array
  */
-function grandeljay_suggest_post_tags_get_definition( string $word, string $ref, string $key ): string {
+function grandeljay_suggest_post_tags_get_definition( string $word, string $ref, string $key ): array {
 	$uri  = 'https://dictionaryapi.com/api/v3/references/' . rawurldecode( $ref ) . '/json/' . rawurldecode( $word ) . '?key=' . rawurldecode( $key );
-	$json = json_decode( wp_remote_get( $uri ) );
+	$json = wp_remote_get( $uri );
 
 	return $json;
 };
