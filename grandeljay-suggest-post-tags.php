@@ -186,7 +186,7 @@ add_filter( 'wp_after_tag_search', 'grandeljay_suggest_post_tags_after_tag_searc
  *
  * @param string $word The word to lookup.
  * @param string $ref  The API to use (@see https://dictionaryapi.com/products/index).
- * @param string $key  The KEy to use.
+ * @param string $key  The Key to use.
  *
  * @see https://dictionaryapi.com/products/api-collegiate-thesaurus
  *
