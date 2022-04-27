@@ -33,12 +33,26 @@ function grandeljay_suggest_post_tags_after_tag_search( array $results, WP_Taxon
 	$response    = wp_remote_get( $request_url );
 
 	/**
-	 * Output error
+	 * Request failed
 	 */
-	if ( is_wp_error( $response ) && defined( 'WP_DEBUG' ) && true === WP_DEBUG  ) {
-		foreach ( $response->errors as $id => $messages ) {
-			foreach ( $messages as $message ) {
-				trigger_error( $message, E_USER_WARNING );
+	if ( is_wp_error( $response ) ) {
+		if ( defined( 'WP_DEBUG' ) && true === WP_DEBUG ) {
+			foreach ( $response->errors as $id => $messages ) {
+				foreach ( $messages as $message ) {
+					/**
+					 * Disable warnings
+					 *
+					 * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+					 * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+					 */
+					trigger_error( $message, E_USER_WARNING );
+					/**
+					 * Enable warnings
+					 *
+					 * phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+					 * phpcs:enable WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+					 */
+				}
 			}
 		}
 
