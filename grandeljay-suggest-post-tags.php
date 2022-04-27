@@ -26,11 +26,23 @@
  * @return array
  */
 function grandeljay_suggest_post_tags_after_tag_search( array $results, WP_Taxonomy $tax, string $s ): array {
-	$s_similar = json_decode(
-		wp_remote_retrieve_body(
-			wp_remote_get( 'https://api.datamuse.com/words?ml=' . rawurlencode( $s ) )
-		)
-	);
+	$request_url = 'https://api.datamuse.com/words?ml=' . rawurlencode( $s );
+	$response    = wp_remote_get( $request_url );
+
+	if ( is_wp_error( $response ) && defined( 'WP_DEBUG' ) && true === WP_DEBUG  ) {
+		/**
+		 * Output error
+		 */
+		foreach ( $response->errors as $id => $messages ) {
+			foreach ( $messages as $message ) {
+				trigger_error( $message, E_USER_WARNING );
+			}
+		}
+
+		return $results;
+	}
+
+	$s_similar = json_decode( $response['body'] );
 
 	foreach ( $s_similar as $s_result ) {
 		$terms_similar = get_terms(
