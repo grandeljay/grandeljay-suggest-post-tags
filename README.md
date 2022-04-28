@@ -6,7 +6,7 @@ The Suggest Post Tags plugin helps you reduce the amount of tags you are using b
 
 Using an API, the terms you search for are looked up and compared to your existing post tags. If you have a post tag which matches one of the related words found, it will be suggested.
 
-![Hello](/src/assets/img/suggest-tags.png)
+![Suggest Tags](/src/assets/img/suggest-tags.png)
 
 ## Credits
 
